@@ -6,6 +6,8 @@ from pydantic import BaseModel, Field
 from guardrail.pipeline import guarded_query_pipeline
 from documents.manager import get_document_manager
 from documents.models import DocumentMetadata, DocumentUploadResponse, DocumentListResponse
+from observability.health import get_system_health
+from observability.metrics import record_query, get_summary, get_recent
 
 app = FastAPI(
     title="CacheLingua API",
@@ -52,9 +54,34 @@ def query_endpoint(request: QueryRequest):
             k=request.k or 10,
             top_n=request.top_n or 5,
         )
+        # Phase 8: record analytics — fire-and-forget, never blocks response
+        try:
+            record_query(result)
+        except Exception:
+            pass
         return result
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+
+# ─── OBSERVABILITY ENDPOINTS (Phase 8) ──────────────────── #
+
+@app.get("/system/health")
+def system_health_endpoint():
+    """Returns structured system health: Redis, ChromaDB, LLM status, document count."""
+    return get_system_health()
+
+
+@app.get("/analytics/summary")
+def analytics_summary_endpoint():
+    """Returns aggregated query analytics: totals, averages, latency, grounding."""
+    return get_summary()
+
+
+@app.get("/analytics/recent")
+def analytics_recent_endpoint(limit: int = 50):
+    """Returns the most recent query analytics records (metadata only, no question text)."""
+    return {"queries": get_recent(limit=limit)}
 
 
 # ─── DOCUMENT MANAGEMENT ENDPOINTS ───────────────────────── #

@@ -11,6 +11,7 @@ import { DocumentManagerView } from '@/components/documents/DocumentManagerView'
 import { QueryInput } from '@/components/chat/QueryInput';
 import { ResponseView } from '@/components/chat/ResponseView';
 import { ChunkInspector } from '@/components/context/ChunkInspector';
+import { ObservabilityDashboard } from '@/components/observability/ObservabilityDashboard';
 import { queryPipeline, getApiBaseUrl } from '@/lib/api';
 import { QueryResponse } from '@/lib/types';
 import { formatMs, formatPercentage } from '@/lib/utils';
@@ -245,19 +246,9 @@ export default function Dashboard() {
           <DocumentManagerView onSelectDocumentForQuery={handleSelectDocumentForQuery} />
         )}
 
-        {/* ── Tab 3: Token Analytics ── */}
+        {/* ── Tab 3: Observability Dashboard ── */}
         {activeTab === 'analytics' && (
-          <div className="space-y-6">
-            <ContextEfficiencyCard
-              originalTokens={queryResult?.original_tokens ?? 0}
-              compressedTokens={queryResult?.compressed_tokens ?? 0}
-              tokensSaved={queryResult?.tokens_saved ?? 0}
-              compressionRatio={queryResult?.compression_ratio ?? 1.0}
-              retrievedChunks={queryResult?.retrieved_chunks ?? 0}
-              rerankedChunks={queryResult?.reranked_chunks ?? 0}
-              selectedChunks={queryResult?.selected_chunks_count ?? 0}
-            />
-          </div>
+          <ObservabilityDashboard />
         )}
 
         {/* ── Tab 4: Guardrail Audit ── */}
