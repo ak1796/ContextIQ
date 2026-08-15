@@ -1,0 +1,102 @@
+{
+  "README.md": {
+    "doc_id": "README.md",
+    "doc_version": 1,
+    "filename": "README.md",
+    "size": 6123,
+    "status": "indexed",
+    "chunk_count": 118,
+    "created_at": "2026-08-15T18:40:29.256668+00:00",
+    "updated_at": "2026-08-15T18:40:29.256668+00:00"
+  },
+  "coffee.csv": {
+    "doc_id": "coffee.csv",
+    "doc_version": 1,
+    "filename": "coffee.csv",
+    "size": 303,
+    "status": "indexed",
+    "chunk_count": 15,
+    "created_at": "2026-08-15T18:48:24.099069+00:00",
+    "updated_at": "2026-08-15T18:48:24.099069+00:00"
+  },
+  "CacheLingua.txt": {
+    "doc_id": "CacheLingua.txt",
+    "doc_version": 5,
+    "filename": "CacheLingua.txt",
+    "size": 7468,
+    "status": "indexed",
+    "chunk_count": 30,
+    "created_at": "2026-08-15T18:52:36.122651+00:00",
+    "updated_at": "2026-08-15T19:23:58.848785+00:00"
+  },
+  "eval_doc.txt": {
+    "doc_id": "eval_doc.txt",
+    "doc_version": 2,
+    "filename": "eval_doc.txt",
+    "size": 307,
+    "status": "indexed",
+    "chunk_count": 3,
+    "created_at": "2026-08-15T19:10:53.934831+00:00",
+    "updated_at": "2026-08-15T19:12:13.233580+00:00"
+  },
+  "eval_doc.md": {
+    "doc_id": "eval_doc.md",
+    "doc_version": 2,
+    "filename": "eval_doc.md",
+    "size": 415,
+    "status": "indexed",
+    "chunk_count": 3,
+    "created_at": "2026-08-15T19:11:00.680385+00:00",
+    "updated_at": "2026-08-15T19:12:17.079987+00:00"
+  },
+  "eval_doc.csv": {
+    "doc_id": "eval_doc.csv",
+    "doc_version": 2,
+    "filename": "eval_doc.csv",
+    "size": 262,
+    "status": "indexed",
+    "chunk_count": 5,
+    "created_at": "2026-08-15T19:11:00.823940+00:00",
+    "updated_at": "2026-08-15T19:12:17.192800+00:00"
+  },
+  "requirements.txt": {
+    "doc_id": "requirements.txt",
+    "doc_version": 1,
+    "filename": "requirements.txt",
+    "size": 53,
+    "status": "indexed",
+    "chunk_count": 3,
+    "created_at": "2026-08-15T19:28:11.815561+00:00",
+    "updated_at": "2026-08-15T19:28:11.815561+00:00"
+  },
+  "benchmark_doc.txt": {
+    "doc_id": "benchmark_doc.txt",
+    "doc_version": 4,
+    "filename": "benchmark_doc.txt",
+    "size": 483,
+    "status": "indexed",
+    "chunk_count": 5,
+    "created_at": "2026-08-15T19:28:59.525382+00:00",
+    "updated_at": "2026-08-15T19:41:07.911886+00:00"
+  },
+  "benchmark_doc.md": {
+    "doc_id": "benchmark_doc.md",
+    "doc_version": 4,
+    "filename": "benchmark_doc.md",
+    "size": 638,
+    "status": "indexed",
+    "chunk_count": 5,
+    "created_at": "2026-08-15T19:29:13.594931+00:00",
+    "updated_at": "2026-08-15T19:41:22.770271+00:00"
+  },
+  "benchmark_doc.csv": {
+    "doc_id": "benchmark_doc.csv",
+    "doc_version": 4,
+    "filename": "benchmark_doc.csv",
+    "size": 566,
+    "status": "indexed",
+    "chunk_count": 8,
+    "created_at": "2026-08-15T19:29:14.156314+00:00",
+    "updated_at": "2026-08-15T19:41:23.357524+00:00"
+  }
+}

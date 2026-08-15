@@ -1,0 +1,4 @@
+Artificial intelligence and machine learning are revolutionizing software development.
+Modern systems utilize document compression and caching layers for efficient retrieval.
+This sample document demonstrates prompt compression using LLMLingua-2.
+Cache keys are deterministically generated based on content hashes and document IDs.
