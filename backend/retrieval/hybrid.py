@@ -89,22 +89,19 @@ def is_structured_lookup(
     df_columns: Optional[List[str]] = None,
 ) -> Optional[Dict[str, Any]]:
     """
-    Detects if a question is asking for an exact-value or filter match against CSV columns.
-    Example inputs:
-      - "if cgpa is 4.73 what's the package"
-      - "cgpa = 4.73"
-      - "where package is 12"
-      - "cgpa 4.73"
-
-    Returns:
-      {"column": "cgpa", "value": 4.73, "operator": "=="} if matched, else None.
+    Detects if a question is asking for exact-value or range/comparison match against CSV columns.
+    Examples:
+      - "cgpa is 4.73" -> {"column": "cgpa", "value": 4.73, "operator": "=="}
+      - "which cgpa has 10+ package" -> {"column": "package", "value": 10.0, "operator": ">="}
+      - "package greater than 10" -> {"column": "package", "value": 10.0, "operator": ">"}
+      - "cgpa less than 7" -> {"column": "cgpa", "value": 7.0, "operator": "<"}
+      - "package at most 8" -> {"column": "package", "value": 8.0, "operator": "<="}
     """
     if not question or not question.strip():
         return None
 
     q_lower = question.lower().strip()
 
-    # Determine potential column names to search for
     candidate_cols = []
     if df_columns:
         for c in df_columns:
@@ -112,48 +109,56 @@ def is_structured_lookup(
             if c_str:
                 candidate_cols.append(c_str)
 
-    # Common generic fallback numeric column names if none provided
     if not candidate_cols:
         candidate_cols = ["cgpa", "package", "salary", "id", "score", "age", "marks", "grade", "gpa"]
 
-    # Sort columns by length descending so longer column names match before shorter ones
     candidate_cols = sorted(set(candidate_cols), key=lambda x: len(x), reverse=True)
 
-    # Regex patterns for matching column + numeric value
-    # Operators: 'is', '=', '==', ':', 'equals', 'equal to', 'of', 'for', 'with', 'having', or plain space/juxtaposition
+    # Ordered list of comparison patterns (pattern_regex, operator)
+    op_patterns = [
+        # >= patterns
+        (r"(?:>=|at least|minimum|min|no less than)\s*(-?\d+(?:\.\d+)?)", ">="),
+        (r"(-?\d+(?:\.\d+)?)\s*\+", ">="),
+        (r"(-?\d+(?:\.\d+)?)\s*(?:or more|or higher|and above)", ">="),
+
+        # > patterns
+        (r"(?:>|more than|greater than|above|higher than|exceeding|over)\s*(-?\d+(?:\.\d+)?)", ">"),
+
+        # <= patterns
+        (r"(?:<=|at most|maximum|max|no more than)\s*(-?\d+(?:\.\d+)?)", "<="),
+        (r"(-?\d+(?:\.\d+)?)\s*(?:or less|or lower|and below)", "<="),
+
+        # < patterns
+        (r"(?:<|less than|under|below|lower than|smaller than)\s*(-?\d+(?:\.\d+)?)", "<"),
+
+        # == patterns
+        (r"(?:==|=|is|:|\bequals\b|\bequal to\b|\bof\b|\bfor\b|\bwith\b|\bhaving\b)?\s*(-?\d+(?:\.\d+)?)", "=="),
+    ]
+
     for col in candidate_cols:
         col_clean = col.lower()
         col_regex = re.escape(col_clean)
 
-        # Pattern 1: column followed by operator/word followed by number
-        # e.g., "cgpa is 4.73", "cgpa = 4.73", "cgpa: 4.73", "cgpa of 4.73", "cgpa equals 4.73"
-        p1 = rf"\b{col_regex}\b\s*(?:is|=|==|:|equals|equal to|of|for|with|having|@)?\s*(-?\d+(?:\.\d+)?)\b"
-        m1 = re.search(p1, q_lower)
-        if m1:
-            try:
-                val = float(m1.group(1))
-                return {
-                    "column": col,
-                    "value": val,
-                    "operator": "==",
-                }
-            except ValueError:
-                pass
+        for pattern, op in op_patterns:
+            # Column before pattern (e.g., "package 10+", "package at least 10", "cgpa is 4.73")
+            p_before = rf"\b{col_regex}\b\s*{pattern}\b"
+            m_before = re.search(p_before, q_lower)
+            if m_before:
+                try:
+                    val = float(m_before.group(1))
+                    return {"column": col, "value": val, "operator": op}
+                except (ValueError, IndexError):
+                    pass
 
-        # Pattern 2: number followed by column
-        # e.g., "4.73 cgpa"
-        p2 = rf"\b(-?\d+(?:\.\d+)?)\s*(?:is|=|==|:|in)?\s*\b{col_regex}\b"
-        m2 = re.search(p2, q_lower)
-        if m2:
-            try:
-                val = float(m2.group(1))
-                return {
-                    "column": col,
-                    "value": val,
-                    "operator": "==",
-                }
-            except ValueError:
-                pass
+            # Pattern before column (e.g., "10+ package", "at least 10 package", "greater than 10 package")
+            p_after = rf"\b{pattern}\s*(?:in|for|of|with)?\s*\b{col_regex}\b"
+            m_after = re.search(p_after, q_lower)
+            if m_after:
+                try:
+                    val = float(m_after.group(1))
+                    return {"column": col, "value": val, "operator": op}
+                except (ValueError, IndexError):
+                    pass
 
     return None
 
@@ -166,10 +171,9 @@ def filter_tabular_dataframe(
     tolerance: float = 0.01,
 ) -> pd.DataFrame:
     """
-    Filters a pandas DataFrame on `column` matching `value` within a numeric floating-point tolerance.
+    Filters pandas DataFrame on `column` according to `operator` (>=, >, <=, <, ==).
     """
     if df is None or df.empty or column not in df.columns:
-        # Case-insensitive column search fallback
         matching_col = None
         for col in df.columns:
             if str(col).lower().strip() == str(column).lower().strip():
@@ -180,23 +184,22 @@ def filter_tabular_dataframe(
         column = matching_col
 
     try:
-        # Numeric conversion with coercion
         numeric_series = pd.to_numeric(df[column], errors="coerce")
 
         if operator == "==":
             is_match = (numeric_series - value).abs() < tolerance
-        elif operator == ">":
-            is_match = numeric_series > value
-        elif operator == "<":
-            is_match = numeric_series < value
         elif operator == ">=":
             is_match = numeric_series >= (value - tolerance)
+        elif operator == ">":
+            is_match = numeric_series > (value + 1e-9)
         elif operator == "<=":
             is_match = numeric_series <= (value + tolerance)
+        elif operator == "<":
+            is_match = numeric_series < (value - 1e-9)
         else:
             is_match = (numeric_series - value).abs() < tolerance
 
         return df[is_match.fillna(False)]
     except Exception as e:
-        logger.error(f"Error filtering DataFrame on column '{column}' = {value}: {e}")
+        logger.error(f"Error filtering DataFrame on column '{column}' {operator} {value}: {e}")
         return pd.DataFrame()

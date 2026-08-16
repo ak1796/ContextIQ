@@ -17,6 +17,7 @@ def get_embedding_model() -> SentenceTransformer:
     if _EMBEDDING_MODEL_INSTANCE is None:
         logger.info(f"Loading embedding model '{MODEL_NAME}' on CPU...")
         _EMBEDDING_MODEL_INSTANCE = SentenceTransformer(MODEL_NAME, device="cpu")
+        print(f"[STARTUP] Loaded {MODEL_NAME}")
     return _EMBEDDING_MODEL_INSTANCE
 
 

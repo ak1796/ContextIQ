@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Terminal, BarChart2, ShieldCheck, Database, Layers, ExternalLink, FileText, UploadCloud } from 'lucide-react';
+import { Terminal, BarChart2, ShieldCheck, Database, Layers, ExternalLink, FileText, UploadCloud, HelpCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { getApiBaseUrl } from '@/lib/api';
 
@@ -18,6 +18,7 @@ const NAV_ITEMS = [
   { id: 'analytics',  label: 'Token Analytics',  icon: BarChart2   },
   { id: 'guardrails', label: 'Guardrail Audit',  icon: ShieldCheck },
   { id: 'vectorstore',label: 'Vector Index',     icon: Database    },
+  { id: 'assistant',  label: 'System Assistant', icon: HelpCircle  },
 ];
 
 const PIPELINE_STAGES = [

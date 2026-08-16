@@ -20,6 +20,7 @@ def get_reranker_model(model_name: str = DEFAULT_RERANKER_MODEL) -> CrossEncoder
         logger.info(f"Loading CrossEncoder model '{model_name}' on CPU...")
         _RERANKER_MODEL_INSTANCE = CrossEncoder(model_name, device="cpu")
         _CURRENT_MODEL_NAME = model_name
+        print(f"[STARTUP] Loaded {model_name}")
     return _RERANKER_MODEL_INSTANCE
 
 

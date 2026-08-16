@@ -12,6 +12,7 @@ import { QueryInput } from '@/components/chat/QueryInput';
 import { ResponseView } from '@/components/chat/ResponseView';
 import { ChunkInspector } from '@/components/context/ChunkInspector';
 import { ObservabilityDashboard } from '@/components/observability/ObservabilityDashboard';
+import { SystemAssistantView } from '@/components/assistant/SystemAssistantView';
 import { queryPipeline, getApiBaseUrl } from '@/lib/api';
 import { QueryResponse } from '@/lib/types';
 import { formatMs, formatPercentage } from '@/lib/utils';
@@ -76,56 +77,56 @@ export default function Dashboard() {
       {/* Main Workspace Area */}
       <main className="flex-1 p-4 md:p-6 space-y-6 overflow-y-auto max-w-7xl mx-auto w-full">
 
-        {/* ── Metric Cards Header Bar ── */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <MetricCard
-            title="Total Latency"
-            value={formatMs(queryResult?.total_latency_ms ?? 0)}
-            subtitle="Pipeline roundtrip time"
-            icon={Clock}
-            iconColor="var(--phase-retrieval)"
-            trend={queryResult ? `${queryResult.generation_latency_ms.toFixed(0)} ms LLM` : 'Ready'}
-            trendType="neutral"
-          />
-
-          <MetricCard
-            title="Token Reduction"
-            value={queryResult ? `${queryResult.tokens_saved} saved` : '—'}
-            subtitle={queryResult
-              ? `${queryResult.compressed_tokens} / ${queryResult.original_tokens} tokens`
-              : 'LLMLingua-2 compressed'}
-            icon={Zap}
-            iconColor="var(--phase-budget)"
-            trend={queryResult ? `${((1 - queryResult.compression_ratio) * 100).toFixed(1)}% saved` : '0%'}
-            trendType="positive"
-          />
-
-          <MetricCard
-            title="Grounding Score"
-            value={queryResult ? formatPercentage(queryResult.grounding_score) : '—'}
-            subtitle={queryResult ? `Status: ${queryResult.answer_status}` : 'Sentence-level check'}
-            icon={ShieldCheck}
-            iconColor="var(--success)"
-            trend={queryResult ? `Risk: ${queryResult.risk_level.toUpperCase()}` : 'LOW RISK'}
-            trendType={queryResult?.risk_level === 'high' ? 'negative' : 'positive'}
-          />
-
-          <MetricCard
-            title="Chunks Selected"
-            value={queryResult ? `${queryResult.selected_chunks_count} / ${queryResult.retrieved_chunks}` : '—'}
-            subtitle={queryResult
-              ? `Reranked: ${queryResult.reranked_chunks}`
-              : 'Budget controller limit'}
-            icon={Database}
-            iconColor="var(--phase-rerank)"
-            trend={queryResult ? `${queryResult.doc_id} v${queryResult.doc_version}` : selectedDocId}
-            trendType="neutral"
-          />
-        </div>
-
         {/* ── Tab 1: Query Bench View ── */}
         {activeTab === 'query' && (
           <div className="space-y-6">
+            {/* Metric Cards Bar */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              <MetricCard
+                title="Total Latency"
+                value={formatMs(queryResult?.total_latency_ms ?? 0)}
+                subtitle="Pipeline roundtrip time"
+                icon={Clock}
+                iconColor="var(--phase-retrieval)"
+                trend={queryResult ? `${queryResult.generation_latency_ms.toFixed(0)} ms LLM` : 'Ready'}
+                trendType="neutral"
+              />
+
+              <MetricCard
+                title="Token Reduction"
+                value={queryResult ? `${queryResult.tokens_saved} saved` : '—'}
+                subtitle={queryResult
+                  ? `${queryResult.compressed_tokens} / ${queryResult.original_tokens} tokens`
+                  : 'LLMLingua-2 compressed'}
+                icon={Zap}
+                iconColor="var(--phase-budget)"
+                trend={queryResult ? `${((1 - queryResult.compression_ratio) * 100).toFixed(1)}% saved` : '0%'}
+                trendType="positive"
+              />
+
+              <MetricCard
+                title="Grounding Score"
+                value={queryResult ? formatPercentage(queryResult.grounding_score) : '—'}
+                subtitle={queryResult ? `Status: ${queryResult.answer_status}` : 'Sentence-level check'}
+                icon={ShieldCheck}
+                iconColor="var(--success)"
+                trend={queryResult ? `Risk: ${queryResult.risk_level.toUpperCase()}` : 'LOW RISK'}
+                trendType={queryResult?.risk_level === 'high' ? 'negative' : 'positive'}
+              />
+
+              <MetricCard
+                title="Chunks Selected"
+                value={queryResult ? `${queryResult.selected_chunks_count} / ${queryResult.retrieved_chunks}` : '—'}
+                subtitle={queryResult
+                  ? `Reranked: ${queryResult.reranked_chunks}`
+                  : 'Budget controller limit'}
+                icon={Database}
+                iconColor="var(--phase-rerank)"
+                trend={queryResult ? `${queryResult.doc_id} v${queryResult.doc_version}` : selectedDocId}
+                trendType="neutral"
+              />
+            </div>
+
             {/* Input Query Bar */}
             <QueryInput
               onSubmit={handleQuerySubmit}
@@ -274,6 +275,11 @@ export default function Dashboard() {
               model={queryResult?.model ?? 'llama-3.3-70b-versatile'}
             />
           </div>
+        )}
+
+        {/* ── Tab 6: System Assistant Chatbot (Phase 9) ── */}
+        {activeTab === 'assistant' && (
+          <SystemAssistantView />
         )}
       </main>
     </div>

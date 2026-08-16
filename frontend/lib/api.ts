@@ -138,3 +138,38 @@ export async function deleteDocument(docId: string): Promise<{ success: boolean;
 
   return response.json();
 }
+
+export async function assistantChat(messages: { role: string; content: string }[]): Promise<{
+  role: string;
+  content: string;
+  success: boolean;
+  error?: string;
+}> {
+  let response: Response;
+  try {
+    response = await fetch(`${API_BASE_URL}/assistant/chat`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ messages }),
+    });
+  } catch {
+    throw new Error('Unable to connect to ContextIQ Assistant service.');
+  }
+
+  if (!response.ok) {
+    let errorMessage = `Assistant service error (${response.status})`;
+    try {
+      const errData = await response.json();
+      if (errData && errData.detail && typeof errData.detail === 'string') {
+        errorMessage = errData.detail;
+      }
+    } catch {
+      // Ignore
+    }
+    throw new Error(errorMessage);
+  }
+
+  return response.json();
+}

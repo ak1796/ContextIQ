@@ -145,16 +145,44 @@ def guarded_query_pipeline(
                 "error": None,
             }
 
-        # Build context directly from exact matching rows
+        # Requirement 3: Multi-row capping & sorting
+        op = structured_match.get("operator", "==")
+        try:
+            sort_asc = True if op in ["<", "<="] else False
+            matched_df = matched_df.sort_values(
+                by=col_name,
+                key=lambda s: pd.to_numeric(s, errors="coerce"),
+                ascending=sort_asc
+            )
+        except Exception:
+            pass
+
+        total_matches = len(matched_df)
+        max_rows = 10
+        is_truncated = total_matches > max_rows
+        display_df = matched_df.head(max_rows) if is_truncated else matched_df
+
         selected_chunks = []
         doc_label = doc_id.split('.')[0].split('/')[-1].split('\\')[-1] if doc_id else ""
         doc_prefix = f"Entity: {doc_label} | " if doc_label else ""
         import pandas as pd
-        for idx, (_, row) in enumerate(matched_df.iterrows(), start=1):
+
+        if is_truncated:
+            val_str = int(val_num) if isinstance(val_num, float) and val_num.is_integer() else val_num
+            trunc_note = f"[NOTE: Showing top {max_rows} of {total_matches} matching rows for query {col_name} {op} {val_str}]"
+            selected_chunks.append({
+                "chunk_index": 0,
+                "original_text": trunc_note,
+                "compressed_text": trunc_note,
+                "score": 1.0,
+                "doc_id": doc_id,
+            })
+
+        for idx, (_, row) in enumerate(display_df.iterrows(), start=1):
             pairs = [f"{c}: {v}" for c, v in row.items() if pd.notna(v)]
             row_str = f"{doc_prefix}Record {idx}: " + ", ".join(pairs)
             selected_chunks.append({
-                "chunk_index": idx - 1,
+                "chunk_index": idx if is_truncated else idx - 1,
                 "original_text": row_str,
                 "compressed_text": row_str,
                 "score": 1.0,

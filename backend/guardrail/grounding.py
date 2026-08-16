@@ -22,6 +22,27 @@ THRESHOLD_PARTIALLY_SUPPORTED = 0.40
 GROUNDING_PASS_THRESHOLD = 0.60
 GROUNDING_PARTIAL_THRESHOLD = 0.35
 
+_NLI_MODEL_INSTANCE = None
+DEFAULT_NLI_MODEL = "cross-encoder/nli-deberta-v3-small"
+
+
+def get_nli_grounding_model(model_name: str = DEFAULT_NLI_MODEL):
+    """
+    Returns a singleton instance of the NLI grounding model.
+    Loaded once and reused across invocations on CPU.
+    """
+    global _NLI_MODEL_INSTANCE
+    if _NLI_MODEL_INSTANCE is None:
+        try:
+            from sentence_transformers import CrossEncoder
+            logger.info(f"Loading NLI grounding model '{model_name}' on CPU...")
+            _NLI_MODEL_INSTANCE = CrossEncoder(model_name, device="cpu")
+            print(f"[STARTUP] Loaded {model_name}")
+        except Exception as e:
+            logger.warning(f"Failed to load NLI grounding model '{model_name}': {e}")
+            _NLI_MODEL_INSTANCE = False
+    return _NLI_MODEL_INSTANCE
+
 
 def _split_into_sentences(text: str) -> List[str]:
     """Splits raw text into clean non-empty sentences."""

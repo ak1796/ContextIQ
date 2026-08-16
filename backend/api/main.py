@@ -9,10 +9,42 @@ from backend.documents.models import DocumentMetadata, DocumentUploadResponse, D
 from backend.observability.health import get_system_health
 from backend.observability.metrics import record_query, get_summary, get_recent
 
+import logging
+from contextlib import asynccontextmanager
+
+logger = logging.getLogger(__name__)
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Pre-warm all AI/ML models at startup
+    print("[STARTUP] Pre-loading all AI/ML pipeline models...")
+    try:
+        from backend.rerank.reranker import get_reranker_model
+        get_reranker_model()
+    except Exception as e:
+        logger.warning(f"Error preloading reranker model: {e}")
+
+    try:
+        from backend.retrieval.embeddings import get_embedding_model
+        get_embedding_model()
+    except Exception as e:
+        logger.warning(f"Error preloading embedding model: {e}")
+
+    try:
+        from backend.guardrail.grounding import get_nli_grounding_model
+        get_nli_grounding_model()
+    except Exception as e:
+        logger.warning(f"Error preloading NLI model: {e}")
+
+    yield
+
+
 app = FastAPI(
     title="CacheLingua API",
     description="Compressed Document Retrieval & Context-Calibrated RAG API with Guardrails & Grounding Verification",
     version="1.0.0",
+    lifespan=lifespan,
 )
 
 app.add_middleware(
@@ -34,10 +66,26 @@ class QueryRequest(BaseModel):
     top_n: Optional[int] = Field(5, description="Top-N candidates to rerank")
 
 
+from backend.api.assistant import AssistantChatRequest, process_assistant_chat
+
+
 @app.get("/health")
 def health_check():
     """Health check endpoint."""
     return {"status": "ok"}
+
+
+@app.post("/assistant/chat")
+def assistant_chat_endpoint(request: AssistantChatRequest):
+    """
+    Executes System Assistant AI Guide chat:
+    Explains ContextIQ system architecture, 8-phase pipeline, algorithms, and UI navigation.
+    Reuses existing Groq credentials and fallback models.
+    """
+    try:
+        return process_assistant_chat(request.messages)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 @app.post("/query")
