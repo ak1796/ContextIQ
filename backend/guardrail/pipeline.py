@@ -34,6 +34,7 @@ def guarded_query_pipeline(
     k: int = 10,
     top_n: int = 5,
     cache: Optional[CacheBackend] = None,
+    bypass_compression: bool = False,
 ) -> Dict[str, Any]:
     """
     Executes full guarded ContextIQ query pipeline:
@@ -235,8 +236,24 @@ def guarded_query_pipeline(
                 reranked_chunks=reranked_results,
             )
             selected_chunks = budget_out.get("selected_chunks", [])
+            if bypass_compression and selected_chunks:
+                from backend.budget.token_counter import count_tokens
+                for c in selected_chunks:
+                    orig_txt = c.get("original_text", "")
+                    c["compressed_text"] = orig_txt
+                    orig_t = c.get("token_count_before")
+                    if orig_t is None:
+                        orig_t = count_tokens(orig_txt)
+                        c["token_count_before"] = orig_t
+                    c["token_count_after"] = orig_t
+                orig_sum = sum(c.get("token_count_before", 0) for c in selected_chunks)
+                budget_out["original_tokens"] = orig_sum
+                budget_out["compressed_tokens"] = orig_sum
+                budget_out["tokens_saved"] = 0
+                budget_out["compression_ratio"] = 1.0
+
             budget_latency_ms = budget_out.get("budget_latency_ms", 0.0)
-            print(f"[BUDGET] selected {len(selected_chunks)} chunks in {budget_latency_ms}ms")
+            print(f"[BUDGET] selected {len(selected_chunks)} chunks in {budget_latency_ms}ms (bypass={bypass_compression})")
         except Exception as e:
             print(f"[BUDGET ERROR] {e}")
             raise
