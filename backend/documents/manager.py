@@ -129,7 +129,7 @@ class DocumentManager:
         custom_doc_id: Optional[str] = None
     ) -> Dict[str, Any]:
         """
-        Processes uploaded document through full CacheLingua pipeline:
+        Processes uploaded document through full ContextIQ pipeline:
         1. Validates file and extracts text.
         2. Determines doc_id (sanitized filename or custom_doc_id).
         3. Executes Phase 1 ingestion (compress + cache). Automatically increments doc_version on re-upload.

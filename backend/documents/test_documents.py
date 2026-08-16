@@ -19,7 +19,7 @@ def doc_manager(tmp_path):
 def test_process_and_store_text_document(doc_manager):
     # Use unique filename per run to avoid stale doc_version in shared cache
     filename = f"test_upload_doc_{uuid.uuid4().hex[:8]}.txt"
-    content = "CacheLingua accelerates retrieval-augmented generation by compressing prompt text at the sentence level."
+    content = "ContextIQ accelerates retrieval-augmented generation by compressing prompt text at the sentence level."
     file_bytes = content.encode("utf-8")
 
     result = doc_manager.process_and_store_document(filename=filename, file_bytes=file_bytes)
@@ -36,8 +36,8 @@ def test_process_and_store_text_document(doc_manager):
 def test_reupload_increments_version(doc_manager):
     # Use unique filename per run to avoid stale doc_version in shared cache
     filename = f"version_test_{uuid.uuid4().hex[:8]}.txt"
-    content_v1 = "Initial version text content for CacheLingua system document."
-    content_v2 = "Updated second version content for CacheLingua system document with new details."
+    content_v1 = "Initial version text content for ContextIQ system document."
+    content_v2 = "Updated second version content for ContextIQ system document with new details."
 
     res1 = doc_manager.process_and_store_document(filename=filename, file_bytes=content_v1.encode("utf-8"))
     meta1 = res1["document"]
@@ -101,9 +101,9 @@ def test_delete_document(doc_manager):
 
 def test_retrieval_after_upload(doc_manager):
     filename = "retrieval_test.txt"
-    text = "CacheLingua reduces LLM context cost by 60 percent using sentence level token pruning."
+    text = "ContextIQ reduces LLM context cost by 60 percent using sentence level token pruning."
     doc_manager.process_and_store_document(filename=filename, file_bytes=text.encode("utf-8"))
 
-    ret_out = retrieve_top_k(doc_id=filename, question="How much cost does CacheLingua reduce?", k=5)
+    ret_out = retrieve_top_k(doc_id=filename, question="How much cost does ContextIQ reduce?", k=5)
     assert len(ret_out["results"]) > 0
     assert ret_out["doc_id"] == filename

@@ -44,7 +44,7 @@ export function Header({ activeModel }: HeaderProps) {
               className="font-brand text-base font-semibold tracking-tight"
               style={{ color: 'var(--foreground)' }}
             >
-              CacheLingua
+              ContextIQ
             </h1>
             <span
               className="badge-base badge-primary font-mono-plex text-[10px]"

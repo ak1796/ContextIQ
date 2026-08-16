@@ -78,23 +78,23 @@ class TestPhase5GuardrailsComplete(unittest.TestCase):
 
     # 10. Correctly grounded answer -> GROUNDED
     def test_10_grounded_answer(self):
-        chunks = [{"compressed_text": "CacheLingua utilizes Redis for fast document chunk caching."}]
-        ans = "CacheLingua utilizes Redis for fast chunk caching."
+        chunks = [{"compressed_text": "ContextIQ utilizes Redis for fast document chunk caching."}]
+        ans = "ContextIQ utilizes Redis for fast chunk caching."
         res = check_grounding(ans, chunks)
         self.assertTrue(res["grounded"])
         self.assertGreaterEqual(res["grounding_score"], 0.70)
 
     # 11. Partially supported answer -> PARTIALLY_GROUNDED
     def test_11_partially_grounded_answer(self):
-        chunks = [{"compressed_text": "CacheLingua utilizes Redis for fast document chunk caching."}]
-        ans = "CacheLingua utilizes Redis for caching. Furthermore quantum mechanics rules computing."
+        chunks = [{"compressed_text": "ContextIQ utilizes Redis for fast document chunk caching."}]
+        ans = "ContextIQ utilizes Redis for caching. Furthermore quantum mechanics rules computing."
         res = check_grounding(ans, chunks)
         self.assertIn(res["grounded"], [True, "partial"])
         self.assertGreater(len(res["unsupported_claims"]), 0)
 
     # 12. Unsupported answer -> rejected/fallback
     def test_12_unsupported_answer_rejected(self):
-        chunks = [{"compressed_text": "CacheLingua utilizes Redis."}]
+        chunks = [{"compressed_text": "ContextIQ utilizes Redis."}]
         ans = "The Eiffel Tower was built in Tokyo in the year 1800."
         res = validate_answer(ans, chunks, "Where is Eiffel tower?")
         self.assertFalse(res["allowed"])

@@ -180,7 +180,7 @@ export default function Dashboard() {
                     Query Bench Ready
                   </h3>
                   <p className="text-xs font-sans-plex text-[color:var(--muted)] mt-1 max-w-md mx-auto">
-                    Select a target document or enter a question above to execute the guarded CacheLingua pipeline (Retrieval → Reranking → Context Budget → Groq Generation → Guardrails).
+                    Select a target document or enter a question above to execute the guarded ContextIQ pipeline (Retrieval → Reranking → Context Budget → Groq Generation → Guardrails).
                   </p>
                 </div>
               </div>

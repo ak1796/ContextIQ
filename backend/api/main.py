@@ -41,7 +41,7 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(
-    title="CacheLingua API",
+    title="ContextIQ API",
     description="Compressed Document Retrieval & Context-Calibrated RAG API with Guardrails & Grounding Verification",
     version="1.0.0",
     lifespan=lifespan,
@@ -91,7 +91,7 @@ def assistant_chat_endpoint(request: AssistantChatRequest):
 @app.post("/query")
 def query_endpoint(request: QueryRequest):
     """
-    Executes full guarded CacheLingua pipeline:
+    Executes full guarded ContextIQ pipeline:
     Input Guardrail -> Phase 2 Retrieval -> Phase 3 Reranking -> Phase 4 Budget ->
     Sufficiency Check -> Groq Generation -> Output Guard & Grounding Validation.
     """

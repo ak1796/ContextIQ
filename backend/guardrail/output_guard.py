@@ -1,5 +1,5 @@
 """
-Output Guardrail Module for CacheLingua.
+Output Guardrail Module for ContextIQ.
 
 Validates generated LLM answers prior to client delivery:
 - Secret & API Key leakage detection (e.g. gsk_*, sk-*).

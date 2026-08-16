@@ -1,5 +1,5 @@
 """
-Token Counting and Estimation Module for CacheLingua.
+Token Counting and Estimation Module for ContextIQ.
 
 Uses tiktoken BPE tokenizer (`cl100k_base`) as a robust local proxy for
 Llama-3/Groq BPE token counting.

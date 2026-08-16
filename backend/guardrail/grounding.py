@@ -1,5 +1,5 @@
 """
-Grounding Verification Module for CacheLingua.
+Grounding Verification Module for ContextIQ.
 
 Combines key-entity/fact verification with sentence-level semantic embedding
 similarity (`all-MiniLM-L6-v2`) to accurately verify answer groundedness without

@@ -66,6 +66,17 @@ class TestSystemAssistant(unittest.TestCase):
         self.assertTrue(data["success"])
         self.assertEqual(data["role"], "assistant")
 
+    def test_08_out_of_scope_honest_fallback(self):
+        # Out-of-scope question (e.g. enterprise pricing) must trigger an honest fallback answer
+        msg = [AssistantMessage(role="user", content="How much does the enterprise pricing subscription plan cost per month?")]
+        res = process_assistant_chat(msg)
+        self.assertTrue(res["success"])
+        content_lower = res["content"].lower()
+        # Verify model indicates it does not have that information / doesn't invent answers
+        self.assertTrue(
+            any(phrase in content_lower for phrase in ["don't have", "do not have", "don't know", "not available", "unsupported", "pricing", "cost", "information"])
+        )
+
 
 if __name__ == "__main__":
     unittest.main()

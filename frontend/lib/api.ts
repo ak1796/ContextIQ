@@ -29,7 +29,7 @@ export async function queryPipeline(payload: QueryPayload): Promise<QueryRespons
       }),
     });
   } catch {
-    throw new Error('Unable to connect to CacheLingua API service. Please check your network or server status.');
+    throw new Error('Unable to connect to ContextIQ API service. Please check your network or server status.');
   }
 
   if (!response.ok) {

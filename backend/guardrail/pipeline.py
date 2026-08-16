@@ -1,5 +1,5 @@
 """
-Guarded End-to-End Query Pipeline for CacheLingua.
+Guarded End-to-End Query Pipeline for ContextIQ.
 
 Integrates input validation, context sufficiency checks, Phase 2–4 RAG steps,
 sentence-level grounding validation, and output security guardrails.
@@ -36,7 +36,7 @@ def guarded_query_pipeline(
     cache: Optional[CacheBackend] = None,
 ) -> Dict[str, Any]:
     """
-    Executes full guarded CacheLingua query pipeline:
+    Executes full guarded ContextIQ query pipeline:
     Input Guard -> Hybrid Routing -> Phase 2 Retrieve -> Phase 3 Rerank -> Phase 4 Budget ->
     Sufficiency Check -> Groq Generation -> Output Guard & Grounding Validation.
     """

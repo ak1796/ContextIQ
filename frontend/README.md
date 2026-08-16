@@ -1,4 +1,4 @@
-# CacheLingua Developer Dashboard Frontend
+# ContextIQ Developer Dashboard Frontend
 
 Modern AI Infrastructure & Context-Calibrated RAG Developer Dashboard built with **Next.js 15 (App Router)**, **TypeScript**, and **Tailwind CSS**.
 
@@ -19,7 +19,7 @@ Modern AI Infrastructure & Context-Calibrated RAG Developer Dashboard built with
 
 ## Getting Started
 
-1. Ensure the CacheLingua FastAPI backend is running on `http://localhost:8000`:
+1. Ensure the ContextIQ FastAPI backend is running on `http://localhost:8000`:
    ```bash
    python -m uvicorn api.main:app --reload
    ```

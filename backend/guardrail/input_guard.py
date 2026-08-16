@@ -1,5 +1,5 @@
 """
-Input Guardrail Module for CacheLingua.
+Input Guardrail Module for ContextIQ.
 
 Provides multi-layered validation for incoming user questions:
 - Emptiness and whitespace checks.

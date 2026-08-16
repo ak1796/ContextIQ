@@ -1,5 +1,5 @@
 """
-Diagnostic & Tracing Tool for CacheLingua RAG Pipeline (Phase 7.2).
+Diagnostic & Tracing Tool for ContextIQ RAG Pipeline (Phase 7.2).
 Traces every pipeline stage for a target question and document to identify exact failure points.
 """
 
@@ -23,7 +23,7 @@ def trace_pipeline(doc_id: str, question: str, k: int = 10, top_n: int = 5) -> D
     cache = get_cache()
 
     print("=" * 80)
-    print(f"       CACHELINGUA PIPELINE DIAGNOSTIC TRACE")
+    print(f"       CONTEXTIQ PIPELINE DIAGNOSTIC TRACE")
     print("=" * 80)
     print(f"QUESTION: {question}")
     print(f"TARGET DOC_ID: {doc_id}")

@@ -20,6 +20,8 @@ const CATEGORIZED_QUESTIONS = [
       'How does compression work?',
       'How does caching work?',
       'What happens to tokens?',
+      'What models does this use and why?',
+      'What is the budget controller and how do I set it?',
     ],
   },
   {
@@ -29,6 +31,8 @@ const CATEGORIZED_QUESTIONS = [
       'What file types are supported?',
       'How does versioning work?',
       'How do I delete a document?',
+      'What happens if I upload the same document twice?',
+      'How are uploaded files chunked and indexed?',
     ],
   },
   {
@@ -37,6 +41,9 @@ const CATEGORIZED_QUESTIONS = [
       'How do I query a document?',
       'How does CSV retrieval work?',
       'Why is structured retrieval used?',
+      "What's the difference between structured lookup and semantic search?",
+      'Why did my query get an empty answer?',
+      'How do k and top_n parameters affect retrieval?',
     ],
   },
   {
@@ -46,6 +53,8 @@ const CATEGORIZED_QUESTIONS = [
       'What does grounding score mean?',
       'What is compression ratio?',
       'Where can I see latency and token savings?',
+      'What metrics does the Observability dashboard track?',
+      'How is total latency calculated across pipeline stages?',
     ],
   },
   {
@@ -58,12 +67,171 @@ const CATEGORIZED_QUESTIONS = [
   },
 ];
 
+function renderInlineText(text: string): React.ReactNode[] {
+  const pattern = /(`[^`]+`|\*\*[^*]+\*\*|__[^_]+__|\*[^*]+\*|_[^_]+_)/g;
+  const parts = text.split(pattern);
+
+  return parts.map((part, i) => {
+    if (!part) return null;
+    if (part.startsWith('`') && part.endsWith('`') && part.length > 2) {
+      return (
+        <code
+          key={i}
+          className="px-1.5 py-0.5 rounded text-[0.85em] font-mono font-medium bg-[color:var(--surface-muted)] text-[color:var(--primary)] border border-[color:var(--border-subtle)]"
+        >
+          {part.slice(1, -1)}
+        </code>
+      );
+    }
+    if (
+      (part.startsWith('**') && part.endsWith('**') && part.length > 4) ||
+      (part.startsWith('__') && part.endsWith('__') && part.length > 4)
+    ) {
+      return (
+        <strong key={i} className="font-semibold text-[color:var(--foreground)]">
+          {renderInlineText(part.slice(2, -2))}
+        </strong>
+      );
+    }
+    if (
+      (part.startsWith('*') && part.endsWith('*') && part.length > 2) ||
+      (part.startsWith('_') && part.endsWith('_') && part.length > 2)
+    ) {
+      return (
+        <em key={i} className="italic">
+          {renderInlineText(part.slice(1, -1))}
+        </em>
+      );
+    }
+    return part;
+  });
+}
+
+function FormattedMessage({ content }: { content: string }) {
+  if (!content) return null;
+
+  const lines = content.split('\n');
+  const elements: React.ReactNode[] = [];
+
+  let i = 0;
+  while (i < lines.length) {
+    const trimmed = lines[i].trim();
+
+    if (!trimmed) {
+      i++;
+      continue;
+    }
+
+    if (trimmed.startsWith('# ')) {
+      elements.push(
+        <h1 key={`h1-${i}`} className="text-base font-bold font-brand text-[color:var(--foreground)] mt-4 mb-2">
+          {renderInlineText(trimmed.slice(2))}
+        </h1>
+      );
+      i++;
+      continue;
+    }
+
+    if (trimmed.startsWith('## ')) {
+      elements.push(
+        <h2 key={`h2-${i}`} className="text-sm font-bold font-brand text-[color:var(--foreground)] mt-3.5 mb-1.5">
+          {renderInlineText(trimmed.slice(3))}
+        </h2>
+      );
+      i++;
+      continue;
+    }
+
+    if (trimmed.startsWith('### ')) {
+      elements.push(
+        <h3 key={`h3-${i}`} className="text-xs font-bold font-brand uppercase tracking-wider text-[color:var(--primary)] mt-3 mb-1.5">
+          {renderInlineText(trimmed.slice(4))}
+        </h3>
+      );
+      i++;
+      continue;
+    }
+
+    const bulletMatch = trimmed.match(/^[-*•]\s+(.+)/);
+    if (bulletMatch) {
+      const items: string[] = [];
+      const startIdx = i;
+      while (i < lines.length) {
+        const lineTrimmed = lines[i].trim();
+        const itemMatch = lineTrimmed.match(/^[-*•]\s+(.+)/);
+        if (itemMatch) {
+          items.push(itemMatch[1]);
+          i++;
+        } else {
+          break;
+        }
+      }
+      elements.push(
+        <ul key={`ul-${startIdx}`} className="my-3 space-y-2 list-disc pl-5 text-[color:var(--foreground)]">
+          {items.map((item, idx) => (
+            <li key={idx} className="leading-relaxed">
+              {renderInlineText(item)}
+            </li>
+          ))}
+        </ul>
+      );
+      continue;
+    }
+
+    const numberMatch = trimmed.match(/^(\d+)[\.\)]\s+(.+)/);
+    if (numberMatch) {
+      const items: string[] = [];
+      const startIdx = i;
+      while (i < lines.length) {
+        const lineTrimmed = lines[i].trim();
+        const itemMatch = lineTrimmed.match(/^(\d+)[\.\)]\s+(.+)/);
+        if (itemMatch) {
+          items.push(itemMatch[2]);
+          i++;
+        } else {
+          break;
+        }
+      }
+      elements.push(
+        <ol key={`ol-${startIdx}`} className="my-3 space-y-2 list-decimal pl-5 text-[color:var(--foreground)]">
+          {items.map((item, idx) => (
+            <li key={idx} className="leading-relaxed">
+              {renderInlineText(item)}
+            </li>
+          ))}
+        </ol>
+      );
+      continue;
+    }
+
+    const isUppercaseHeading = /^[A-Z0-9\s_\-\(\)&]{4,50}:$/.test(trimmed);
+    if (isUppercaseHeading) {
+      elements.push(
+        <div key={`head-${i}`} className="text-xs font-bold font-brand uppercase tracking-wider text-[color:var(--primary)] mt-4 mb-2">
+          {trimmed}
+        </div>
+      );
+      i++;
+      continue;
+    }
+
+    elements.push(
+      <p key={`p-${i}`} className="leading-relaxed my-2">
+        {renderInlineText(trimmed)}
+      </p>
+    );
+    i++;
+  }
+
+  return <div className="space-y-3 text-xs sm:text-sm font-sans-plex">{elements}</div>;
+}
+
 export function SystemAssistantView() {
   const [messages, setMessages] = useState<Message[]>([
     {
       role: 'assistant',
       content:
-        'Hello! I am the **ContextIQ System Assistant** — your AI guide to the system architecture, 8-phase RAG pipeline, analytics, and dashboard navigation.\n\nHow can I help you today? Choose a suggested question below or type your prompt!',
+        'Hello! I am the ContextIQ System Assistant - your AI guide to the system architecture, ContextIQ processing pipeline, analytics, and dashboard navigation.\n\nHow can I help you today? Choose a suggested question below or type your prompt!',
     },
   ]);
   const [input, setInput] = useState('');
@@ -141,7 +309,7 @@ export function SystemAssistantView() {
               ContextIQ System Assistant
             </h2>
             <p className="text-xs font-sans-plex text-[color:var(--muted)]">
-              AI guide for ContextIQ architecture, 8-phase pipeline, analytics & UI navigation.
+              AI guide for ContextIQ architecture, ContextIQ pipeline, analytics & UI navigation.
             </p>
           </div>
         </div>
@@ -270,7 +438,7 @@ export function SystemAssistantView() {
                         }
                   }
                 >
-                  <p className="whitespace-pre-wrap leading-relaxed">{msg.content}</p>
+                  <FormattedMessage content={msg.content} />
                 </div>
 
                 {isUser && (

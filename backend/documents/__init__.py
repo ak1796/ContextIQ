@@ -1,5 +1,5 @@
 """
-Document Ingestion & Management Layer for CacheLingua.
+Document Ingestion & Management Layer for ContextIQ.
 Handles document uploads, text extraction, version management, Phase 1 compression, and Phase 2 indexing.
 """
 

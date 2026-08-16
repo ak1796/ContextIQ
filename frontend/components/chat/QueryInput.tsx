@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Send, FileText, Sliders, Sparkles, Loader2, AlertCircle } from 'lucide-react';
+import { Send, FileText, Sliders, Loader2, AlertCircle } from 'lucide-react';
 import { Card } from '@/components/ui/Card';
 
 interface QueryInputProps {
@@ -12,12 +12,6 @@ interface QueryInputProps {
 }
 
 const MAX_QUESTION_LENGTH = 1000;
-
-const SAMPLE_QUERIES = [
-  'How are cache keys generated for stored document chunks?',
-  'What methods improve retrieval efficiency in modern RAG systems?',
-  'How does prompt compression reduce LLM inference latency?',
-];
 
 export function QueryInput({ onSubmit, isLoading, selectedDocId = 'doc1.txt', onDocIdChange }: QueryInputProps) {
   const [internalDocId, setInternalDocId] = useState<string | null>(null);
@@ -227,38 +221,6 @@ export function QueryInput({ onSubmit, isLoading, selectedDocId = 'doc1.txt', on
           </div>
         )}
       </form>
-
-      {/* Sample queries */}
-      <div className="mt-4 pt-3" style={{ borderTop: '1px solid var(--border-subtle)' }}>
-        <span
-          className="text-[10px] font-mono-plex uppercase tracking-widest block mb-2"
-          style={{ color: 'var(--muted-foreground)' }}
-        >
-          Sample Queries:
-        </span>
-        <div className="flex flex-wrap gap-2">
-          {SAMPLE_QUERIES.map((q, idx) => (
-            <button
-              key={idx}
-              type="button"
-              disabled={isLoading}
-              onClick={() => {
-                setQuestion(q);
-                setInputError(null);
-              }}
-              className="text-xs px-2.5 py-1 rounded-md border font-sans-plex flex items-center gap-1.5 transition-all text-left disabled:opacity-50"
-              style={{
-                backgroundColor: 'var(--surface-muted)',
-                color: 'var(--muted)',
-                borderColor: 'var(--border-subtle)',
-              }}
-            >
-              <Sparkles className="h-3 w-3 shrink-0" style={{ color: 'var(--primary)' }} />
-              <span className="truncate max-w-[260px]">{q}</span>
-            </button>
-          ))}
-        </div>
-      </div>
     </Card>
   );
 }

@@ -24,8 +24,8 @@ class TestGenerationAndPipeline(unittest.TestCase):
         try:
             os.environ["GROQ_API_KEY"] = ""
             res = generate_answer(
-                question="What is CacheLingua?",
-                selected_chunks=[{"compressed_text": "CacheLingua compresses context."}],
+                question="What is ContextIQ?",
+                selected_chunks=[{"compressed_text": "ContextIQ compresses context."}],
             )
             self.assertFalse(res["success"])
             self.assertIsNotNone(res["error"])

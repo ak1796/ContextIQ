@@ -1,5 +1,5 @@
 """
-Full End-to-End Query Pipeline for CacheLingua.
+Full End-to-End Query Pipeline for ContextIQ.
 
 Orchestrates all 4 phases:
 1. Document retrieval via ChromaDB vector index (Phase 2).
@@ -31,7 +31,7 @@ def query_pipeline(
     cache: Optional[CacheBackend] = None,
 ) -> Dict[str, Any]:
     """
-    Executes complete end-to-end CacheLingua RAG pipeline:
+    Executes complete end-to-end ContextIQ RAG pipeline:
     retrieve -> rerank -> budget -> generate.
     """
     if cache is None:

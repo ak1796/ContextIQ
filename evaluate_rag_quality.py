@@ -1,5 +1,5 @@
 """
-Enhanced 45-Question Benchmark Evaluation Suite for CacheLingua RAG Pipeline (Phase 7.3).
+Enhanced 45-Question Benchmark Evaluation Suite for ContextIQ RAG Pipeline (Phase 7.3).
 Evaluates 15 questions per format (TXT, MD, CSV) across 6 question categories:
 1. Direct factual
 2. Multi-field
@@ -22,11 +22,11 @@ logger = logging.getLogger(__name__)
 # Ground truth sample document contents
 TXT_DOC_CONTENT = """LinguaCorp was founded in 2021 by Sarah Chen.
 The company headquarters is located in Austin, Texas.
-LinguaCorp primary product is CacheLingua which compresses context tokens.
+LinguaCorp primary product is ContextIQ which compresses context tokens.
 In 2024 LinguaCorp achieved an annual revenue of 15 million dollars.
 The Chief Technology Officer of LinguaCorp is Dr. Marcus Vance.
 The engineering team operates out of the Austin research campus.
-CacheLingua reduces LLM inference cost by up to 60 percent.
+ContextIQ reduces LLM inference cost by up to 60 percent.
 The company has 45 full time employees as of 2024."""
 
 MD_DOC_CONTENT = """# LinguaCorp Corporate Profile
@@ -36,8 +36,8 @@ LinguaCorp was founded in 2021 by Sarah Chen.
 The company headquarters is located in Austin, Texas.
 
 ## Product Portfolio
-LinguaCorp primary product is CacheLingua which compresses context tokens.
-CacheLingua reduces LLM inference cost by up to 60 percent.
+LinguaCorp primary product is ContextIQ which compresses context tokens.
+ContextIQ reduces LLM inference cost by up to 60 percent.
 
 ## Financial Performance & Workforce
 In 2024 LinguaCorp achieved an annual revenue of 15 million dollars.
@@ -50,7 +50,7 @@ The engineering team operates out of the Austin research campus."""
 CSV_DOC_CONTENT = """ID,Attribute,Category,Value,Year,Location
 1,Founder,Corporate Information,Sarah Chen,2021,Austin Texas
 2,Headquarters,Location,Austin Texas,2021,Austin Texas
-3,Primary Product,Product Portfolio,CacheLingua,2021,Austin Texas
+3,Primary Product,Product Portfolio,ContextIQ,2021,Austin Texas
 4,Cost Reduction,Product Benefits,60 percent,2024,Austin Texas
 5,Annual Revenue,Financials,15 million dollars,2024,Austin Texas
 6,Workforce,Human Resources,45 full time employees,2024,Austin Texas
@@ -70,10 +70,10 @@ BENCHMARK_QUESTIONS = [
     # 3. Numerical
     {"id": "q6", "category": "numerical", "question": "What was LinguaCorp's annual revenue in 2024?", "expected_facts": ["15 million"], "absent": False},
     {"id": "q7", "category": "numerical", "question": "How many full time employees does LinguaCorp have?", "expected_facts": ["45"], "absent": False},
-    {"id": "q8", "category": "numerical", "question": "By what percentage does CacheLingua reduce inference cost?", "expected_facts": ["60"], "absent": False},
+    {"id": "q8", "category": "numerical", "question": "By what percentage does ContextIQ reduce inference cost?", "expected_facts": ["60"], "absent": False},
     
     # 4. Field Relationships
-    {"id": "q9", "category": "field_relationships", "question": "What primary product does LinguaCorp build to compress context tokens?", "expected_facts": ["cachelingua"], "absent": False},
+    {"id": "q9", "category": "field_relationships", "question": "What primary product does LinguaCorp build to compress context tokens?", "expected_facts": ["contextiq"], "absent": False},
     {"id": "q10", "category": "field_relationships", "question": "In what year was the 15 million dollar revenue achieved?", "expected_facts": ["2024"], "absent": False},
     
     # 5. Absent Information (Out of bounds - expects fallback / non-hallucination)
@@ -82,7 +82,7 @@ BENCHMARK_QUESTIONS = [
     {"id": "q13", "category": "absent_info", "question": "How much funding did LinguaCorp raise in Series A?", "expected_facts": [], "absent": True},
     
     # 6. Multi-chunk Synthesis
-    {"id": "q14", "category": "multi_chunk", "question": "Summarize LinguaCorp's product name and its cost reduction benefit.", "expected_facts": ["cachelingua", "60"], "absent": False},
+    {"id": "q14", "category": "multi_chunk", "question": "Summarize LinguaCorp's product name and its cost reduction benefit.", "expected_facts": ["contextiq", "60"], "absent": False},
     {"id": "q15", "category": "multi_chunk", "question": "What is the company's revenue in 2024 and how many employees work there?", "expected_facts": ["15 million", "45"], "absent": False},
 ]
 
@@ -191,7 +191,7 @@ def run_benchmark():
         }
 
     print("\n" + "=" * 85)
-    print("      CACHELINGUA PHASE 7.3 ENHANCED 45-QUESTION RAG EVALUATION REPORT")
+    print("      CONTEXTIQ PHASE 7.3 ENHANCED 45-QUESTION RAG EVALUATION REPORT")
     print("=" * 85)
     print(f"{'Format':<10} | {'Questions':<10} | {'Recall@K':<12} | {'Answer Correctness':<20} | {'Grounded':<12} | {'Insufficient Context':<20}")
     print("-" * 85)

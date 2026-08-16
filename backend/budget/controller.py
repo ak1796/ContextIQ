@@ -1,5 +1,5 @@
 """
-Calibrated Budget Controller for CacheLingua.
+Calibrated Budget Controller for ContextIQ.
 
 Determines available context token budget based on system limits, question length,
 and reserve tokens, then adaptively selects context chunks in descending relevance order.
