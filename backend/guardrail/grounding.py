@@ -118,7 +118,7 @@ def check_grounding(
     context_texts = []
     context_sentences = []
     for chunk in selected_chunks:
-        t = chunk.get("original_text") or chunk.get("compressed_text") or ""
+        t = chunk.get("compressed_text") or chunk.get("original_text") or ""
         if t:
             context_texts.append(t)
             context_sentences.extend(_split_into_sentences(t))
