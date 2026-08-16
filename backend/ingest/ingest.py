@@ -2,6 +2,7 @@ from datetime import datetime, timezone
 from typing import Dict, Any, List, Optional
 from backend.ingest.compressor import compress_document
 from backend.ingest.cache import get_cache, compute_cache_key, CacheBackend, DEFAULT_MAX_CACHE_SIZE
+from backend.retrieval.hybrid import save_tabular_dataframe
 
 
 def ingest_document(
@@ -14,14 +15,21 @@ def ingest_document(
     """
     Ingests a document string with doc_id:
     1. Determines doc_version (increments version if doc_id was previously ingested).
-    2. Runs LLMLingua-2 compression on text at the sentence level.
-    3. Computes cache key = hash(doc_id + chunk_text + chunk_index).
-    4. Checks cache / populates cache entries storing compressed_text, original_text, doc_version,
+    2. Saves raw DataFrame to tabular store if CSV.
+    3. Runs LLMLingua-2 compression on text at the sentence level.
+    4. Computes cache key = hash(doc_id + chunk_text + chunk_index).
+    5. Checks cache / populates cache entries storing compressed_text, original_text, doc_version,
        chunk_index, embedding (null for now), created_at.
-    5. Performs LRU eviction check if cache size exceeds max_cache_size.
+    6. Performs LRU eviction check if cache size exceeds max_cache_size.
     """
     if cache is None:
         cache = get_cache()
+
+    if doc_id.lower().endswith(".csv") or "," in text.splitlines()[0] if text else False:
+        try:
+            save_tabular_dataframe(doc_id, text)
+        except Exception:
+            pass
 
     # Register version: 1 on initial ingest, incremented on re-ingest of same doc_id
     doc_version = cache.register_or_increment_doc_version(doc_id)
@@ -94,6 +102,12 @@ def reingest_document(
     """
     if cache is None:
         cache = get_cache()
+
+    if doc_id.lower().endswith(".csv") or (text and "," in text.splitlines()[0]):
+        try:
+            save_tabular_dataframe(doc_id, text)
+        except Exception:
+            pass
 
     new_version = cache.increment_doc_version(doc_id)
     compressed_chunks = compress_document(text, doc_id, rate=rate)
