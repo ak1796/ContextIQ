@@ -94,8 +94,7 @@ def is_structured_lookup(
       - "cgpa is 4.73" -> {"column": "cgpa", "value": 4.73, "operator": "=="}
       - "which cgpa has 10+ package" -> {"column": "package", "value": 10.0, "operator": ">="}
       - "package greater than 10" -> {"column": "package", "value": 10.0, "operator": ">"}
-      - "cgpa less than 7" -> {"column": "cgpa", "value": 7.0, "operator": "<"}
-      - "package at most 8" -> {"column": "package", "value": 8.0, "operator": "<="}
+      - "What is the Value for Chief Technology Officer?" -> {"column": "Attribute", "value": "Chief Technology Officer", "operator": "=="}
     """
     if not question or not question.strip():
         return None
@@ -112,9 +111,25 @@ def is_structured_lookup(
     if not candidate_cols:
         candidate_cols = ["cgpa", "package", "salary", "id", "score", "age", "marks", "grade", "gpa"]
 
-    candidate_cols = sorted(set(candidate_cols), key=lambda x: len(x), reverse=True)
+    candidate_cols_sorted = sorted(set(candidate_cols), key=lambda x: len(x), reverse=True)
 
-    # Ordered list of comparison patterns (pattern_regex, operator)
+    # 1. Text Attribute Lookup Pattern (e.g. "Value for <attribute>", "who is listed as the <attribute>")
+    attr_match = re.search(
+        r"(?:value\s+for|listed\s+as\s+the|for)\s+([a-zA-Z0-9\s]{3,30}?)(?:\?|\s+in\s+the|\s+dataset|$)",
+        q_lower
+    )
+    if attr_match:
+        target_val = attr_match.group(1).strip()
+        # Find column that might contain this attribute (e.g., 'Attribute')
+        attr_col = None
+        for c in candidate_cols:
+            if c.lower() in {"attribute", "category", "name", "title", "item", "key"}:
+                attr_col = c
+                break
+        if attr_col:
+            return {"column": attr_col, "value": target_val, "operator": "=="}
+
+    # 2. Ordered list of comparison patterns for numeric columns (pattern_regex, operator)
     op_patterns = [
         # >= patterns
         (r"(?:>=|at least|minimum|min|no less than)\s*(-?\d+(?:\.\d+)?)", ">="),
@@ -135,7 +150,7 @@ def is_structured_lookup(
         (r"(?:==|=|is|:|\bequals\b|\bequal to\b|\bof\b|\bfor\b|\bwith\b|\bhaving\b)?\s*(-?\d+(?:\.\d+)?)", "=="),
     ]
 
-    for col in candidate_cols:
+    for col in candidate_cols_sorted:
         col_clean = col.lower()
         col_regex = re.escape(col_clean)
 
@@ -166,12 +181,13 @@ def is_structured_lookup(
 def filter_tabular_dataframe(
     df: pd.DataFrame,
     column: str,
-    value: float,
+    value: Union[float, str],
     operator: str = "==",
     tolerance: float = 0.01,
 ) -> pd.DataFrame:
     """
     Filters pandas DataFrame on `column` according to `operator` (>=, >, <=, <, ==).
+    Supports numeric comparisons as well as string match.
     """
     if df is None or df.empty or column not in df.columns:
         matching_col = None
@@ -184,20 +200,28 @@ def filter_tabular_dataframe(
         column = matching_col
 
     try:
+        if isinstance(value, str) and not value.replace(".", "", 1).isdigit():
+            # String matching (case-insensitive substring or match)
+            val_clean = value.strip().lower()
+            str_series = df[column].astype(str).str.strip().str.lower()
+            is_match = str_series.str.contains(re.escape(val_clean), regex=True, na=False)
+            return df[is_match]
+
+        val_num = float(value)
         numeric_series = pd.to_numeric(df[column], errors="coerce")
 
         if operator == "==":
-            is_match = (numeric_series - value).abs() < tolerance
+            is_match = (numeric_series - val_num).abs() < tolerance
         elif operator == ">=":
-            is_match = numeric_series >= (value - tolerance)
+            is_match = numeric_series >= (val_num - tolerance)
         elif operator == ">":
-            is_match = numeric_series > (value + 1e-9)
+            is_match = numeric_series > (val_num + 1e-9)
         elif operator == "<=":
-            is_match = numeric_series <= (value + tolerance)
+            is_match = numeric_series <= (val_num + tolerance)
         elif operator == "<":
-            is_match = numeric_series < (value - 1e-9)
+            is_match = numeric_series < (val_num - 1e-9)
         else:
-            is_match = (numeric_series - value).abs() < tolerance
+            is_match = (numeric_series - val_num).abs() < tolerance
 
         return df[is_match.fillna(False)]
     except Exception as e:
